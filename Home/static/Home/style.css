@@ -1,0 +1,173 @@
+/*---------------------------------------------font-family: 'Great Vibes', cursive;	-------------------------------------------------------------------*/
+
+body
+{
+font-family: 'Great Vibes', cursive;
+background-color :green;
+color : white;
+}
+/*---------------------------------------------font-family: 'Poiret One', cursive;-------------------------------------------------------------------*/
+.header
+{
+margin-left : 5px;
+margin-right : 5px;
+margin-bottom : 5px;
+margin-top : 0px;
+height : 100px;
+background-color : green;
+border-radius : 10px;
+text-align : center;
+}
+/*--------------------------------------------------font-family: 'Kaushan Script', cursive;--------------------------------------------------------------*/
+.navigation
+{
+background-color : green;
+margin : 0px;
+height : 20px;
+border-radius : 20px;
+text-align : center;
+}
+.navigation a
+{
+padding : .2em 1em ;
+color : white;
+transition : color 1s ease-in-out;
+text-decoration : none;
+border-radius : 20px;
+background-color : black;
+}
+.navigation a:hover
+{
+color : red;
+}
+
+/*-----------------------------------------------------font-family: 'Bad Script', cursive;-----------------------------------------------------------*/
+
+.demosites
+{
+background-color : green;
+margin : 20px;
+height : 20px;
+border-radius : 20px;
+text-align : center;
+padding : 10px;
+}
+.demosites a
+{
+padding : .2em .5em ;
+color : white;
+transition : color 1s ease-in-out;
+text-decoration : none;
+border-radius : 20px;
+background-color : black;
+}
+.demosites a:hover
+{
+color : red;
+}
+/*------------------------------------------------------font-family: 'Marck Script', cursive;----------------------------------------------------------*/
+.imagelogo
+{
+margin : 0px;
+clear = left;
+}
+.imageexp
+{
+margin : 0px;
+clear = center;
+text-align : centre;
+}
+/*----------------------------------------------------------------------------------------------------------------*/
+.main
+{
+text-align : left;
+}
+.main a
+{
+color : yellow;
+background-color : green;
+font-family: 'Poiret One', cursive;
+padding : 0em 0em ;
+text-decoration : none;
+}
+/*----------------------------------------------------------------------------------------------------------------*/
+.footer
+{
+font-size : 50%;
+margin-left : 5px;
+margin-right : 5px;
+margin-bottom : 20px;
+margin-top : 0px;
+font-family: 'Poiret One', cursive;
+margin : 5px;
+height : 90px;
+border-radius : 20px;
+text-align : center;
+}
+.footer a
+{
+padding : .2em 2em ;
+color : white;
+transition : color 1s ease-in-out;
+text-decoration : none;
+border-radius : 20px;
+background-color : black;
+}
+.footer a:hover
+{
+color : red;
+}
+
+/*-----------------------------------------------------------------------------------------------*/
+p
+{
+font-family: 'Poiret One', cursive;
+}
+
+/*-----------------------------------------------------------------------------------------------*/
+h1
+{
+color : white;
+font-size : 400%;
+transition : color 1s ease-in-out;
+text-align : center;
+}
+h1:hover
+{
+color : red;
+}
+
+h2
+{
+color : white;
+transition : color 1s ease-in-out;
+}
+h2:hover
+{
+color : red;
+}
+
+h3
+{
+color : white;
+transition : color 1s ease-in-out;
+}
+h3:hover
+{
+color : red;
+}
+h4
+{
+color : white;
+font-size : 200%;
+}
+/*-----------------------------------------------------------------------------------------------------*/
+.ends
+{
+text-align : center;
+font-family: 'Poiret One', cursive;
+}
+.ends a
+{
+color : yellow;
+}

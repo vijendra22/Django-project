@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Learn Django</title>
+</head>
+<body>
+   {% load static %}
+   <link rel="stylesheet" type="text/css" href="{% static 'Home/style.css' %}">
+   <link href="https://fonts.googleapis.com/css?family=Great+Vibes" rel="stylesheet">
+	<link href="https://fonts.googleapis.com/css?family=Poiret+One" rel="stylesheet">
+
+
+    <div class = header>
+	    <h1>Learn Django</h1>
+    </div>
+
+    <div class = navigation>
+        <a href = "/Home/1">Home</a>
+        <a href = "/Home/2">Getting django</a>
+        <a href = "/Home/3">Start with django</a>
+        <a href = "/Home/10">About website</a>
+        <a href = "/Home/13">Contact us</a>
+
+    </div>
+
+
+    <div class = main><!------------open------------------->
+<h2>Learn Django, part 2 : </h2>
+<p>This tutorial begins where Tutorial 1 left off. We’ll setup the database, create your first model, and get a quick introduction to Django’s automatically-generated admin site.</p>
+<h2>Database setup :</h2>
+<p>Now, open up mysite/settings.py. It’s a normal Python module with module-level variables representing Django settings. By default, the configuration uses SQLite. If you’re new to databases, or you’re just interested in trying Django, this is the easiest choice. SQLite is included in Python, so you won’t need to install anything else to support your database. When starting your first real project, however, you may want to use a more scalable database like PostgreSQL, to avoid database-switching headaches down the road. If you wish to use another database, install the appropriate database bindings and change the following keys in the DATABASES 'default' item to match your database connection settings:</p>
+<ul>
+<p> > ENGINE – Either 'django.db.backends.sqlite3', 'django.db.backends.postgresql', 'django.db.backends.mysql', or 'django.db.backends.oracle'. Other backends are also available.</p>
+<p> > NAME – The name of your database. If you’re using SQLite, the database will be a file on your computer; in that case, NAME should be the full absolute path, including filename, of that file. The default value, os.path.join(BASE_DIR, 'db.sqlite3'), will store the file in your project directory.</p>
+<p>If you are not using SQLite as your database, additional settings such as USER, PASSWORD, and HOST must be added. For more details, see the reference documentation for DATABASES.</p>
+</ul>
+<h3>For databases other than SQLite :</h3>
+<p>If you’re using a database besides SQLite, make sure you’ve created a database by this point. Do that with “CREATE DATABASE database_name;” within your database’s interactive prompt. Also make sure that the database user provided in mysite/settings.py has “create database” privileges. This allows automatic creation of a test database which will be needed in a later tutorial. If you’re using SQLite, you don’t need to create anything beforehand - the database file will be created automatically when it is needed.</p>
+<p>While you’re editing mysite/settings.py, set TIME_ZONE to your time zone. Also, note the INSTALLED_APPS setting at the top of the file. That holds the names of all Django applications that are activated in this Django instance. Apps can be used in multiple projects, and you can package and distribute them for use by others in their projects.</p>
+<p>By default, INSTALLED_APPS contains the following apps, all of which come with Django :</p>
+
+<ul>
+<p> > django.contrib.admin – The admin site. You’ll use it shortly.</p>
+<p> > django.contrib.auth – An authentication system.</p>
+<p> > django.contrib.contenttypes – A framework for content types.</p>
+<p> > django.contrib.sessions – A session framework.</p>
+<p> > django.contrib.messages – A messaging framework.</p>
+<p> > django.contrib.staticfiles – A framework for managing static files.</p>
+</ul>
+
+<p>These applications are included by default as a convenience for the common case.</p>
+<p>Some of these applications make use of at least one database table, though, so we need to create the tables in the database before we can use them. To do that, run the following command :</p>
+
+<fieldset>Linux/Mac : python manage.py migrate</fieldset><br>
+<fieldset>Windows : py manage.py migrate</fieldset><br>
+
+<p>The migrate command looks at the INSTALLED_APPS setting and creates any necessary database tables according to the database settings in your mysite/settings.py file and the database migrations shipped with the app (we’ll cover those later). You’ll see a message for each migration it applies. If you’re interested, run the command-line client for your database and type \dt (PostgreSQL), SHOW TABLES; (MySQL), .schema (SQLite), or SELECT TABLE_NAME FROM USER_TABLES; (Oracle) to display the tables Django created.</p>
+
+<h2>Creating models :</h2>
+<p>Now we’ll define your models – essentially, your database layout, with additional metadata. In our simple poll app, we’ll create two models: Question and Choice. A Question has a question and a publication date. A Choice has two fields: the text of the choice and a vote tally. Each Choice is associated with a Question.</p>
+<p>These concepts are represented by simple Python classes. Edit the polls/models.py file so it looks like this :</p>
+<fieldset>
+<p>from django.db import models</p>
+<p>class Question(models.Model):</p>
+<p>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbspquestion_text = models.CharField(max_length=200)</p>
+<p>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsppub_date = models.DateTimeField('date published')</p>
+<p>class Choice(models.Model):</p>
+<p>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbspquestion = models.ForeignKey(Question, on_delete=models.CASCADE)</p>
+<p>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbspchoice_text = models.CharField(max_length=200)</p>
+<p>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbspvotes = models.IntegerField(default=0)</p>
+</fieldset>
+<p>The code is straightforward. Each model is represented by a class that subclasses django.db.models.Model. Each model has a number of class variables, each of which represents a database field in the model. Each field is represented by an instance of a Field class – e.g., CharField for character fields and DateTimeField for datetimes. This tells Django what type of data each field holds. The name of each Field instance (e.g. question_text or pub_date) is the field’s name, in machine-friendly format. You’ll use this value in your Python code, and your database will use it as the column name.
+You can use an optional first positional argument to a Field to designate a human-readable name. That’s used in a couple of introspective parts of Django, and it doubles as documentation. If this field isn’t provided, Django will use the machine-readable name. In this example, we’ve only defined a human-readable name for Question.pub_date. For all other fields in this model, the field’s machine-readable name will suffice as its human-readable name. Some Field classes have required arguments. CharField, for example, requires that you give it a max_length. That’s used not only in the database schema, but in validation, as we’ll soon see. A Field can also have various optional arguments; in this case, we’ve set the default value of votes to 0.
+Finally, note a relationship is defined, using ForeignKey. That tells Django each Choice is related to a single Question. Django supports all the common database relationships: many-to-one, many-to-many, and one-to-one.
+</p>
+<h2>Activating models :</h2>
+<p>That small bit of model code gives Django a lot of information. With it, Django is able to :</p>
+<ul>
+<p> > Create a database schema (CREATE TABLE statements) for this app.</p>
+<p> > Create a Python database-access API for accessing Question and Choice objects.</p>
+</ul>
+<p>But first we need to tell our project that the polls app is installed.</p>
+<p>To include the app in our project, we need to add a reference to its configuration class in the INSTALLED_APPS setting. The PollsConfig class is in the polls/apps.py file, so its dotted path is 'polls.apps.PollsConfig'. Edit the mysite/settings.py file and add that dotted path to the INSTALLED_APPS setting. It’ll look like this :</p>
+<fieldset>
+<p>INSTALLED_APPS = [</p>
+<p>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp'polls.apps.PollsConfig',</p>
+<p>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp'django.contrib.admin',</p>
+<p>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp'django.contrib.auth',</p>
+<p>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp'django.contrib.contenttypes',</p>
+<p>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp'django.contrib.sessions',</p>
+<p>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp'django.contrib.messages',</p>
+<p>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp'django.contrib.staticfiles',</p>
+<p>]</p>
+</fieldset>
+<p>Now Django knows to include the polls app. Let’s run another command :</p>
+<fieldset>Linux/Mac : python manage.py makemigrations polls</fieldset><br>
+<fieldset>Windows : py manage.py makemigrations polls</fieldset><br>
+<p>You should see something similar to the following :</p>
+<fieldset>
+<p>Migrations for 'polls':</p>
+<p>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsppolls/migrations/0001_initial.py:</p>
+<p>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp- Create model Choice</p>
+<p>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp- Create model Question</p>
+<p>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp- Add field question to choice</p>
+</fieldset>
+<p>By running makemigrations, you’re telling Django that you’ve made some changes to your models (in this case, you’ve made new ones) and that you’d like the changes to be stored as a migration. Migrations are how Django stores changes to your models (and thus your database schema) - they’re just files on disk. You can read the migration for your new model if you like; it’s the file polls/migrations/0001_initial.py. Don’t worry, you’re not expected to read them every time Django makes one, but they’re designed to be human-editable in case you want to manually tweak how Django changes things.</p>
+<p>There’s a command that will run the migrations for you and manage your database schema automatically - that’s called migrate, and we’ll come to it in a moment - but first, let’s see what SQL that migration would run. The sqlmigrate command takes migration names and returns their SQL :</p>
+<fieldset>Linux/Mac : python manage.py sqlmigrate polls 0001</fieldset><br>
+<fieldset>Windows : py manage.py sqlmigrate polls 0001</fieldset><br>
+
+<p>You should see something similar to the following (we’ve reformatted it for readability) :</p>
+<fieldset>
+<p>BEGIN;</p>
+<p>--</p>
+<p>-- Create model Choice</p>
+<p>--</p>
+<p>CREATE TABLE "polls_choice" (</p>
+<p>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp"id" serial NOT NULL PRIMARY KEY,</p>
+<p>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp"choice_text" varchar(200) NOT NULL,</p>
+<p>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp"votes" integer NOT NULL</p>
+<p>);</p>
+<p>--</p>
+<p>-- Create model Question</p>
+<p>--</p>
+<p>CREATE TABLE "polls_question" (</p>
+<p>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp"id" serial NOT NULL PRIMARY KEY,</p>
+<p>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp"question_text" varchar(200) NOT NULL,</p>
+<p>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp"pub_date" timestamp with time zone NOT NULL</p>
+<p>);</p>
+<p>--</p>
+<p>-- Add field question to choice</p>
+<p>--</p>
+<p>ALTER TABLE "polls_choice" ADD COLUMN "question_id" integer NOT NULL;</p>
+<p>ALTER TABLE "polls_choice" ALTER COLUMN "question_id" DROP DEFAULT;</p>
+<p>CREATE INDEX "polls_choice_7aa0f6ee" ON "polls_choice" ("question_id");</p>
+<p>ALTER TABLE "polls_choice"</p>
+<p>&nbsp&nbsp&nbsp&nbsp&nbspADD CONSTRAINT "polls_choice_question_id_246c99a640fbbd72_fk_polls_question_id"</p>
+<p>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbspFOREIGN KEY ("question_id")</p>
+<p>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbspREFERENCES "polls_question" ("id")</p>
+<p>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbspDEFERRABLE INITIALLY DEFERRED;</p>
+<p>COMMIT;</p>
+</fieldset>
+
+<p>Note the following :</p>
+<ul>
+<p> > The exact output willIt’s tailored to the database you’re using, so database-specific field types such as auto_increment (MySQL), serial (PostgreSQL), or integer primary key autoincrement (SQLite) are handled for you automatically. Same goes for the quoting of field names – e.g., using double quotes or single quotes. vary depending on the database you are using. The example above is generated for PostgreSQL.</p>
+<p> > Table names are automatically generated by combining the name of the app (polls) and the lowercase name of the model – question and choice. (You can override this behavior.)</p>
+<p> > Primary keys (IDs) are added automatically. (You can override this, too.)</p>
+<p> > By convention, Django appends "_id" to the foreign key field name. (Yes, you can override this, as well.)</p>
+<p> > The foreign key relationship is made explicit by a FOREIGN KEY constraint. Don’t worry about the DEFERRABLE parts; that’s just telling PostgreSQL to not enforce the foreign key until the end of the transaction.</p>
+<p> > It’s tailored to the database you’re using, so database-specific field types such as auto_increment (MySQL), serial (PostgreSQL), or integer primary key autoincrement (SQLite) are handled for you automatically. Same goes for the quoting of field names – e.g., using double quotes or single quotes.</p>
+<p> > The sqlmigrate command doesn’t actually run the migration on your database - it just prints it to the screen so that you can see what SQL Django thinks is required. It’s useful for checking what Django is going to do or if you have database administrators who require SQL scripts for changes.</p>
+</ul>
+<p>If you’re interested, you can also run python manage.py check; this checks for any problems in your project without making migrations or touching the database.</p>
+<p>Now, run migrate again to create those model tables in your database :</p>
+
+<fieldset>
+<p>python manage.py migrate</p>
+<p>Operations to perform:</p>
+<p>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbspApply all migrations: admin, auth, contenttypes, polls, sessions</p>
+<p>Running migrations:</p>
+<p>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbspRendering model states... DONE</p>
+<p>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbspApplying polls.0001_initial... OK</p>
+</fieldset>
+
+<p>The migrate command takes all the migrations that haven’t been applied (Django tracks which ones are applied using a special table in your database called django_migrations) and runs them against your database - essentially, synchronizing the changes you made to your models with the schema in the database.</p>
+<p>Migrations are very powerful and let you change your models over time, as you develop your project, without the need to delete your database or tables and make new ones - it specializes in upgrading your database live, without losing data. We’ll cover them in more depth in a later part of the tutorial, but for now, remember the three-step guide to making model changes :</p>
+<ul>
+<p> > Change your models (in models.py).</p>
+<p> > Run python manage.py makemigrations to create migrations for those changes.</p>
+<p> > Run python manage.py migrate to apply those changes to the database.</p>
+</ul>
+<p>The reason that there are separate commands to make and apply migrations is because you’ll commit migrations to your version control system and ship them with your app; they not only make your development easier, they’re also usable by other developers and in production.</p>
+
+<h2>Playing with the API :</h2>
+<p>Now, let’s hop into the interactive Python shell and play around with the free API Django gives you. To invoke the Python shell, use this command :</p>
+<fieldset>Linux/Mac : python manage.py shell</fieldset><br>
+<fieldset>Windows : py manage.py shell</fieldset><br>
+<p>We’re using this instead of simply typing “python”, because manage.py sets the DJANGO_SETTINGS_MODULE environment variable, which gives Django the Python import path to your mysite/settings.py file.</p>
+<p>Once you’re in the shell, explore the database API :</p>
+<fieldset>
+<ul>
+<p> >>> from polls.models import Choice, Question  # Import the model classes we just wrote.</p>
+<p> >>> Question.objects.all()</p>
+<p> >>> from django.utils import timezone</p>
+<p> >>> q = Question(question_text="What's new?", pub_date=timezone.now())</p>
+<p> >>> q.save()</p>
+<p> >>> q.id</p>
+<p> 1</p>
+<p> >>> q.question_text</p>
+<p> "What's new?"</p>
+<p> >>> q.pub_date</p>
+<p> datetime.datetime(2012, 2, 26, 13, 0, 0, 775217, tzinfo=&ltUTC&gt)</p>
+<p> >>> q.question_text = "What's up?"</p>
+<p> >>> q.save()</p>
+<p> >>> Question.objects.all()</p>
+</ul>
+</fieldset>
+
+<p>Wait a minute. &ltQuestion: Question object (1)&gt isn’t a helpful representation of this object. Let’s fix that by editing the Question model (in the polls/models.py file) and adding a __str__() method to both Question and Choice :</p>
+
+<fieldset>
+<p>from django.db import models</p>
+<p>class Question(models.Model):</p>
+<p>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp# ...</p>
+<p>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbspdef __str__(self):</p>
+<p>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbspreturn self.question_text</p>
+
+<p>class Choice(models.Model):</p>
+<p>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp# ...</p>
+<p>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbspdef __str__(self):</p>
+<p>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbspreturn self.choice_text</p>
+</fieldset>
+
+<p>It’s important to add __str__() methods to your models, not only for your own convenience when dealing with the interactive prompt, but also because objects’ representations are used throughout Django’s automatically-generated admin.</p>
+<p>Note these are normal Python methods. Let’s add a custom method, just for demonstration :</p>
+
+<fieldset>
+<ul>
+<p>import datetime</p>
+<p>from django.db import models</p>
+<p>from django.utils import timezone</p>
+<p>class Question(models.Model):</p>
+<p>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp# ...</p>
+<p>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbspdef was_published_recently(self):</p>
+<p>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbspreturn self.pub_date >= timezone.now() - datetime.timedelta(days=1)</p>
+</ul>
+</fieldset>
+<p>Note the addition of import datetime and from django.utils import timezone, to reference Python’s standard datetime module and Django’s time-zone-related utilities in django.utils.timezone, respectively.</p>
+<p>Save these changes and start a new Python interactive shell by running python manage.py shell again :</p>
+<fieldset>
+<ul>
+<p> >>> from polls.models import Choice, Question</p>
+<p> >>> Question.objects.all()</p>
+<p> >>> from django.utils import timezone</p>
+<p> >>> q = Question(question_text="What's new?", pub_date=timezone.now())</p>
+<p> >>> q.save()</p>
+<p> >>> q.id</p>
+<p> 1</p>
+<p> >>> q.question_text</p>
+<p> "What's new?"</p>
+<p> >>> q.pub_date</p>
+<p> >>> q.question_text = "What's up?"</p>
+<p> >>> q.save()</p>
+<p> >>> Question.objects.all()</p>
+</ul>
+</fieldset>
+
+<p>Note these are normal Python methods. Let’s add a custom method, just for demonstration :</p>
+
+<fieldset>
+<p>import datetime</p>
+<p>from django.db import models</p>
+<p>from django.utils import timezone</p>
+<p>class Question(models.Model):</p>
+<p>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp# ...</p>
+<p>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbspdef was_published_recently(self):</p>
+<p>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbspreturn self.pub_date >= timezone.now() - datetime.timedelta(days=1)</p>
+</fieldset>
+<p>Note the addition of import datetime and from django.utils import timezone, to reference Python’s standard datetime module and Django’s time-zone-related utilities in django.utils.timezone, respectively. If you aren’t familiar with time zone handling in Python, you can learn more in the time zone support docs.</p>
+<p>Save these changes and start a new Python interactive shell by running python manage.py shell again :</p>
+<fieldset>
+<ul>
+<p> >>> from polls.models import Choice, Question</p>
+<p> >>> Question.objects.filter(id=1)</p>
+<p> >>> Question.objects.filter(question_text__startswith='What')</p>
+<p> >>> from django.utils import timezone</p>
+<p> >>> current_year = timezone.now().year</p>
+<p> >>> Question.objects.get(pub_date__year=current_year)</p>
+<p> >>> Question.objects.get(id=2)</p>
+<p> DoesNotExist: Question matching query does not exist.</p>
+<p> >>> Question.objects.get(pk=1)</p>
+<p> >>> q = Question.objects.get(pk=1)</p>
+<p> >>> q.was_published_recently()</p>
+<p> True</p>
+<p> >>> q = Question.objects.get(pk=1)</p>
+<p> >>> q.choice_set.all()</p>
+<p> >>> q.choice_set.create(choice_text='Not much', votes=0)</p>
+<p> >>> q.choice_set.create(choice_text='The sky', votes=0)</p>
+<p> >>> c = q.choice_set.create(choice_text='Just hacking again', votes=0)</p>
+<p> >>> c.question</p>
+<p> >>> q.choice_set.all()</p>
+<p> >>> q.choice_set.count()</p>
+<p> >>> Choice.objects.filter(question__pub_date__year=current_year)</p>
+<p> >>> c = q.choice_set.filter(choice_text__startswith='Just hacking')</p>
+<p> >>> c.delete()</p>
+</ul>
+</fieldset>
+
+<h2>Introducing the Django Admin</h2>
+<h3>Creating an admin user</h3>
+<p>First we’ll need to create a user who can login to the admin site. Run the following command :</p>
+<fieldset>Linux/Mac : python manage.py createsuperuser</fieldset><br>
+<fieldset>Windows : py manage.py createsuperuser</fieldset><br>
+<p>Enter your desired username and press enter.</p>
+<fieldset>Username: admin</fieldset><br>
+<p>You will then be prompted for your desired email address :</p>
+<fieldset>Email address: admin@example.com</fieldset><br>
+<p>The final step is to enter your password. You will be asked to enter your password twice, the second time as a confirmation of the first.</p>
+<fieldset>Email address: admin@example.com</fieldset><br>
+<fieldset>
+<p>Password: **********</p>
+<p>Password (again): *********</p>
+<p>Superuser created successfully.</p>
+</fieldset><br>
+<h3>Start the development server</h3>
+<p>The Django admin site is activated by default. Let’s start the development server and explore it.</p>
+<p>If the server is not running start it like so :</p>
+<fieldset>Linux/Mac : python manage.py runserver</fieldset><br>
+<fieldset>Windows : py manage.py runserver</fieldset><br>
+<p>Now, open a Web browser and go to “/admin/” on your local domain – e.g., <a href = "http://127.0.0.1:8000/admin/">http://127.0.0.1:8000/admin/</a>. You should see the admin’s login screen :</p>
+
+
+<div class = imageexp><!------------open------------------->
+<img alt="Django admin login screen" src="./Writing your first Django app, part 2 _ Django documentation _ Django_files/admin01.png">
+</div><!------------close------------------->
+
+<p>Since translation is turned on by default, the login screen may be displayed in your own language, depending on your browser’s settings and if Django has a translation for this language.</p>
+
+<h3>Enter the admin site</h3>
+<p>Now, try logging in with the superuser account you created in the previous step. You should see the Django admin index page :</p>
+
+<div class = imageexp><!------------open------------------->
+<img alt="Django admin index page" src="./Writing your first Django app, part 2 _ Django documentation _ Django_files/admin02.png">
+</div><!------------close------------------->
+
+<p>You should see a few types of editable content: groups and users. They are provided by django.contrib.auth, the authentication framework shipped by Django.</p>
+<h3>Make the poll app modifiable in the admin</h3>
+<p>But where’s our poll app? It’s not displayed on the admin index page. Just one thing to do, we need to tell the admin that Question objects have an admin interface. To do this, open the polls/admin.py file, and edit it to look like this :</p>
+
+<fieldset>
+<p>polls/admin.py :</p>
+<p>from django.contrib import admin</p>
+<p>from .models import Question</p>
+<p>admin.site.register(Question)</p>
+</fieldset>
+<br>
+
+<div class = imageexp><!------------open------------------->
+<img alt="Django admin index page, now with polls displayed" src="./Writing your first Django app, part 2 _ Django documentation _ Django_files/admin03t.png">
+</div><!------------close------------------->
+
+<p>Click “Questions”. Now you’re at the “change list” page for questions. This page displays all the questions in the database and lets you choose one to change it. There’s the “What’s up?” question we created earlier :</p>
+
+<div class = imageexp><!------------open------------------->
+<img alt="Polls change list page" src="./Writing your first Django app, part 2 _ Django documentation _ Django_files/admin04t.png">
+</div><!------------close------------------->
+
+<p>Click the “What’s up?” question to edit it :</p>
+
+<div class = imageexp><!------------open------------------->
+<img alt="Polls change list page" src="./Writing your first Django app, part 2 _ Django documentation _ Django_files/admin05t.png">
+</div><!------------close------------------->
+
+<p>Things to note here :</p>
+<ul>
+<p> > The form is automatically generated from the Question model.</p>
+<p> > The different model field types (DateTimeField, CharField) correspond to the appropriate HTML input widget. Each type of field knows how to display itself in the Django admin.</p>
+<p> > Each DateTimeField gets free JavaScript shortcuts. Dates get a “Today” shortcut and calendar popup, and times get a “Now” shortcut and a convenient popup that lists commonly entered times.</p>
+</ul>
+<p>The bottom part of the page gives you a couple of options :</p>
+<ul>
+<p> > Save – Saves changes and returns to the change-list page for this type of object.</p>
+<p> > Save and continue editing – Saves changes and reloads the admin page for this object.</p>
+<p> > Save and add another – Saves changes and loads a new, blank form for this type of object.</p>
+<p> > Delete – Displays a delete confirmation page.</p>
+</ul>
+<p>If the value of “Date published” doesn’t match the time when you created the question in Tutorial 1, it probably means you forgot to set the correct value for the TIME_ZONE setting. Change it, reload the page and check that the correct value appears. Change the “Date published” by clicking the “Today” and “Now” shortcuts. Then click “Save and continue editing.” Then click “History” in the upper right. You’ll see a page listing all changes made to this object via the Django admin, with the timestamp and username of the person who made the change :</p>
+
+<div class = imageexp><!------------open------------------->
+<img alt="Polls change list page" src="./Writing your first Django app, part 2 _ Django documentation _ Django_files/admin06t.png">
+</div><!------------close------------------->
+
+<p>When you’re comfortable with the models API and have familiarized yourself with the admin site, read part 3 of this tutorial to learn about how to add more views to our polls app.</p>
+
+</div><!------------close------------------->
+
+<br>
+<br>
+<br>
+<div class = navigation ><!------------open------------------->
+<a href="tutorial1.html"> <<<<- Learn Django, part 1</a>
+<a href="tutorial3.html">Learn Django, part 3 ->>>></a>
+</div><!------------close------------------->
+
+
+<div class = footer >
+    <br>
+    <br>
+    <br><br>
+    <br>
+    <br>
+        &copy; www.learndjango.com. ALL RIGHTS RESERVED.
+            <a href = "/Home/10">About this website</a>
+            <a href = "/Home/11">About me</a>
+            <a href = "/Home/12">Help</a>
+            <a href = "/Home/13">Contact us</a>
+    </div>
+</body>
+</html>

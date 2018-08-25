@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Learn Django</title>
+</head>
+<body>
+    {% load static %}
+   <link rel="stylesheet" type="text/css" href="{% static 'Home/style.css' %}">
+   <link href="https://fonts.googleapis.com/css?family=Great+Vibes" rel="stylesheet">
+	<link href="https://fonts.googleapis.com/css?family=Poiret+One" rel="stylesheet">
+
+
+    <div class = header>
+	    <h1>Learn Django</h1>
+    </div>
+
+    <div class = navigation>
+        <a href = "/Home/1">Home</a>
+        <a href = "/Home/2">Getting django</a>
+        <a href = "/Home/3">Start with django</a>
+        <a href = "/Home/10">About website</a>
+        <a href = "/Home/13">Contact us</a>
+
+    </div>
+
+
+    <div class = main><!------------open------------------->
+<h2>Learn Django, part 3 :</h2>
+<p>This tutorial begins where Tutorial 2 left off. We’re continuing the Web-poll application and will focus on creating the public interface – “views.”</p><br>
+<h3>Overview</h3>
+<p>A view is a “type” of Web page in your Django application that generally serves a specific function and has a specific template. For example, in a blog application, you might have the following views :</p>
+<ul>
+<p> > Blog homepage – displays the latest few entries.</p>
+<p> > Entry “detail” page – permalink page for a single entry.</p>
+<p> > Year-based archive page – displays all months with entries in the given year.</p>
+<p> > Month-based archive page – displays all days with entries in the given month.</p>
+<p> > Day-based archive page – displays all entries in the given day.</p>
+<p> > Comment action – handles posting comments to a given entry.</p>
+</ul>
+<p>In our poll application, we’ll have the following four views :</p>
+<ul>
+<p> > Question “index” page – displays the latest few questions.</p>
+<p> > Question “detail” page – displays a question text, with no results but with a form to vote.</p>
+<p> > Question “results” page – displays results for a particular question.</p>
+<p> > Vote action – handles voting for a particular choice in a particular question.</p>
+</ul>
+
+<p>In Django, web pages and other content are delivered by views. Each view is represented by a simple Python function (or method, in the case of class-based views). Django will choose a view by examining the URL that’s requested (to be precise, the part of the URL after the domain name).</p>
+<p>Now in your time on the web you may have come across such beauties as “ME2/Sites/dirmod.asp?sid=&type=gen&mod=Core+Pages&gid=A6CD4967199A42D9B65B1B”. You will be pleased to know that Django allows us much more elegant URL patterns than that. A URL pattern is simply the general form of a URL - for example: /newsarchive/&ltyear&gt/&ltmonth&gt/.
+To get from a URL to a view, Django uses what are known as ‘URLconfs’. A URLconf maps URL patterns to views. This tutorial provides basic instruction in the use of URLconfs, and you can refer to URL dispatcher for more information.
+</p>
+
+<h3>Writing more views</h3>
+<p>Now let’s add a few more views to polls/views.py. These views are slightly different, because they take an argument :</p>
+<fieldset>
+<p>polls/views.py :</p>
+<p>def detail(request, question_id):</p>
+<p>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp;return HttpResponse("You're looking at question %s." % question_id)</p>
+<p>def results(request, question_id):</p>
+<p>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp;response = "You're looking at the results of question %s."<p>
+<p>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp;return HttpResponse(response % question_id)<p>
+<p>def vote(request, question_id):</p>
+<p>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp;return HttpResponse("You're voting on question %s." % question_id)</p>
+</fieldset>
+<p>Wire these new views into the polls.urls module by adding the following path() calls :</p>
+<fieldset>
+<p>polls/urls.py :</p>
+<p>from django.urls import path</p>
+<p>from . import views</p>
+<p>urlpatterns = [</p>
+<p>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp;# ex: /polls/</p>
+<p>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp;path('', views.index, name='index'),</p>
+<p>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp;# ex: /polls/5/</p>
+<p>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp;path('&ltint:question_id&gt/', views.detail, name='detail'),</p>
+<p>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp;# ex: /polls/5/results/</p>
+<p>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp;path('&ltint:question_id&gt/results/', views.results, name='results'),</p>
+<p>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp;# ex: /polls/5/vote/</p>
+<p>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp;path('&ltint:question_id&gt/vote/', views.vote, name='vote'),</p>
+<p>]</p>
+</fieldset>
+
+<p>Take a look in your browser, at “/polls/34/”. It’ll run the detail() method and display whatever ID you provide in the URL. Try “/polls/34/results/” and “/polls/34/vote/” too – these will display the placeholder results and voting pages.
+When somebody requests a page from your website – say, “/polls/34/”, Django will load the mysite.urls Python module because it’s pointed to by the ROOT_URLCONF setting. It finds the variable named urlpatterns and traverses the patterns in order. After finding the match at 'polls/', it strips off the matching text ("polls/") and sends the remaining text – "34/" – to the ‘polls.urls’ URLconf for further processing.
+There it matches '&ltint:question_id&gt/', resulting in a call to the detail() view like so :
+</p>
+
+<fieldset>
+<p>detail(request=&ltHttpRequest object&gt, question_id=34)</p>
+</fieldset>
+
+<p>The question_id=34 part comes from &ltint:question_id&gt. Using angle brackets “captures” part of the URL and sends it as a keyword argument to the view function.
+The :question_id&gt part of the string defines the name that will be used to identify the matched pattern, and the &ltint: part is a converter that determines what patterns should match this part of the URL path.
+There’s no need to add URL cruft such as .html – unless you want to, in which case you can do something like this :
+</p>
+<fieldset>
+<p>path('polls/latest.html', views.index),</p>
+</fieldset>
+<p>But, don’t do that. It’s silly.</p>
+
+<h3>Write views that actually do something</h3>
+<p>Each view is responsible for doing one of two things: returning an HttpResponse object containing the content for the requested page, or raising an exception such as Http404. The rest is up to you.
+Your view can read records from a database, or not. It can use a template system such as Django’s – or a third-party Python template system – or not. It can generate a PDF file, output XML, create a ZIP file on the fly, anything you want, using whatever Python libraries you want.
+All Django wants is that HttpResponse. Or an exception.
+Because it’s convenient, let’s use Django’s own database API, which we covered in Tutorial 2. Here’s one stab at a new index() view, which displays the latest 5 poll questions in the system, separated by commas, according to publication date :
+</p>
+
+<fieldset>
+<p>polls/views.py:</p>
+<p>from django.http import HttpResponse</p>
+<p>from .models import Question</p>
+<p>def index(request):</p>
+<p>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp;latest_question_list = Question.objects.order_by('-pub_date')[:5]</p>
+<p>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp;output = ', '.join([q.question_text for q in latest_question_list])</p>
+<p>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp;return HttpResponse(output)</p>
+<p># Leave the rest of the views (detail, results, vote) unchanged</p>
+</fieldset>
+<p>There’s a problem here, though: the page’s design is hard-coded in the view. If you want to change the way the page looks, you’ll have to edit this Python code. So let’s use Django’s template system to separate the design from Python by creating a template that the view can use.
+First, create a directory called templates in your polls directory. Django will look for templates in there.Your project’s TEMPLATES setting describes how Django will load and render templates. The default settings file configures a DjangoTemplates backend whose APP_DIRS option is set to True. By convention DjangoTemplates looks for a “templates” subdirectory in each of the INSTALLED_APPS.
+Within the templates directory you have just created, create another directory called polls, and within that create a file called index.html. In other words, your template should be at polls/templates/polls/index.html. Because of how the app_directories template loader works as described above, you can refer to this template within Django simply as polls/index.html.
+</p>
+<p>Put the following code in that template :</p>
+<fieldset>
+<p>polls/templates/polls/index.html:</p>
+<p>{% if latest_question_list %}</p>
+<p>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp;&ltul&gt</p>
+<p>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp;{% for question in latest_question_list %}</p>
+<p>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp;&ltli&gt&lta href="/polls/{{ question.id }}/"&gt{{ question.question_text }}&lt/a&gt&lt/li&gt</p>
+<p>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp;{% endfor %}</p>
+<p>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp;&lt/ul&gt</p>
+<p>{% else %}</p>
+<p>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp;&ltp&gtNo polls are available.&lt/p&gt</p>
+<p>{% endif %}</p>
+</fieldset>
+<p>Now let’s update our index view in polls/views.py to use the template :</p>
+<fieldset>
+<p>polls/views.py:</p>
+<p>from django.http import HttpResponse</p>
+<p>from django.template import loader</p>
+<p>from .models import Question</p>
+<p>def index(request):</p>
+<p>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp;latest_question_list = Question.objects.order_by('-pub_date')[:5]</p>
+<p>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp;template = loader.get_template('polls/index.html')</p>
+<p>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp;context = {</p>
+<p>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp;'latest_question_list': latest_question_list,</p>
+<p>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp;}</p>
+<p>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp;return HttpResponse(template.render(context, request))</p>
+</fieldset>
+<p>That code loads the template called polls/index.html and passes it a context. The context is a dictionary mapping template variable names to Python objects.
+Load the page by pointing your browser at “/polls/”, and you should see a bulleted-list containing the “What’s up” question from Tutorial 2.
+The link points to the question’s detail page.
+</p>
+<h3>A shortcut: render()</h3>
+<p>It’s a very common idiom to load a template, fill a context and return an HttpResponse object with the result of the rendered template. Django provides a shortcut. Here’s the full index() view, rewritten :</p>
+<fieldset>
+<p>polls/views.py</p>
+<p>from django.shortcuts import render</p>
+<p>from .models import Question</p>
+<p>def index(request):</p>
+<p>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp;latest_question_list = Question.objects.order_by('-pub_date')[:5]</p>
+<p>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp;context = {'latest_question_list': latest_question_list}</p>
+<p>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp;return render(request, 'polls/index.html', context)</p>
+</fieldset>
+<p>Note that once we’ve done this in all these views, we no longer need to import loader and HttpResponse (you’ll want to keep HttpResponse if you still have the stub methods for detail, results, and vote).
+The render() function takes the request object as its first argument, a template name as its second argument and a dictionary as its optional third argument.
+It returns an HttpResponse object of the given template rendered with the given context.
+</p>
+<h3>Raising a 404 error</h3>
+<p>Now, let’s tackle the question detail view – the page that displays the question text for a given poll. Here’s the view :</p>
+<fieldset>
+<p>polls/views.py:</p>
+<p>from django.http import Http404</p>
+<p>from django.shortcuts import render</p>
+<p>from .models import Question</p>
+<p># ...</p>
+<p>def detail(request, question_id):</p>
+<p>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp;try:</p>
+<p>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp;question = Question.objects.get(pk=question_id)</p>
+<p>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp;except Question.DoesNotExist:</p>
+<p>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp;&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp;raise Http404("Question does not exist")</p>
+<p>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp;return render(request, 'polls/detail.html', {'question': question})</p>
+</fieldset>
+<p>The new concept here: The view raises the Http404 exception if a question with the requested ID doesn’t exist.
+We’ll discuss what you could put in that polls/detail.
+html template a bit later, but if you’d like to quickly get the above example working, a file containing just :</p>
+<fieldset>
+<p>polls/templates/polls/detail.html</p>
+<p>{{ question }}</p>
+</fieldset>
+<p>will get you started for now.</p>
+</h3>A shortcut: get_object_or_404()</h3>
+<p>It’s a very common idiom to use get() and raise Http404 if the object doesn’t exist. Django provides a shortcut. Here’s the detail() view, rewritten :</p>
+<fieldset>
+<p>polls/views.py:</p>
+<p>from django.shortcuts import get_object_or_404, render</p>
+<p>from .models import Question</p>
+<p># ...</p>
+<p>def detail(request, question_id):</p>
+<p>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp;question = get_object_or_404(Question, pk=question_id)</p>
+<p>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp;return render(request, 'polls/detail.html', {'question': question})</p>
+</fieldset>
+<p>The get_object_or_404() function takes a Django model as its first argument and an arbitrary number of keyword arguments, which it passes to the get() function of the model’s manager.
+It raises Http404 if the object doesn’t exist.
+There’s also a get_list_or_404() function, which works just as get_object_or_404() – except using filter() instead of get(). It raises Http404 if the list is empty.
+</p>
+<h3>Use the template system</h3>
+<p>Back to the detail() view for our poll application. Given the context variable question, here’s what the polls/detail.html template might look like :</p>
+<fieldset>
+<p>polls/templates/polls/detail.html</p>
+<p>&lth1&gt{{ question.question_text }}&lt/h1&gt</p>
+<p>&ltul&gt</p>
+<p>{% for choice in question.choice_set.all %}</p>
+<p>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp;&ltli&gt{{ choice.choice_text }}&lt/li&gt</p>
+<p>{% endfor %}</p>
+<p>&lt/ul&gt</p>
+</fieldset>
+<p>The template system uses dot-lookup syntax to access variable attributes. In the example of {{ question.question_text }}, first Django does a dictionary lookup on the object question. Failing that, it tries an attribute lookup – which works, in this case. If attribute lookup had failed, it would’ve tried a list-index lookup.
+Method-calling happens in the for loop: question.choice_set.all is interpreted as the Python code question.choice_set.all(), which returns an iterable of Choice objects and is suitable for use in the for tag.
+See the template guide for more about templates.
+</p>
+<h3>Removing hardcoded URLs in templates</h3>
+<p>Remember, when we wrote the link to a question in the polls/index.html template, the link was partially hardcoded like this :</p>
+<fieldset>
+<p>&ltli&gt&lta href="/polls/{{ question.id }}/"&gt{{ question.question_text }}&lt/a>&lt/li&gt</p>
+</fieldset>
+<p>The problem with this hardcoded, tightly-coupled approach is that it becomes challenging to change URLs on projects with a lot of templates. However, since you defined the name argument in the path() functions in the polls.urls module, you can remove a reliance on specific URL paths defined in your url configurations by using the url template tag :</p>
+<fieldset>
+<p>&ltli&gt&lta href="{&percnt url 'detail' question.id &percnt}"&gt{{ question.question_text }}&lt/a>&lt/li&gt</p>
+</fieldset>
+<p>The way this works is by looking up the URL definition as specified in the polls.urls module. You can see exactly where the URL name of ‘detail’ is defined below :</p>
+<fieldset>
+<p>path('&ltint:question_id&gt/', views.detail, name='detail'),</p>
+</fieldset>
+<p>If you want to change the URL of the polls detail view to something else, perhaps to something like polls/specifics/12/ instead of doing it in the template (or templates) you would change it in polls/urls.py :</p>
+<fieldset>
+<p>path('specifics/&ltint:question_id&gt/', views.detail, name='detail'),</p>
+</fieldset>
+<h3>Namespacing URL names</h3>
+<p>The tutorial project has just one app, polls. In real Django projects, there might be five, ten, twenty apps or more.
+How does Django differentiate the URL names between them? For example, the polls app has a detail view, and so might an app on the same project that is for a blog.
+How does one make it so that Django knows which app view to create for a url when using the url template tag?
+The answer is to add namespaces to your URLconf. In the polls/urls.py file, go ahead and add an app_name to set the application namespace :</p>
+<fieldset>
+<p>polls/urls.py:</p>
+<p>from django.urls import path</p>
+<p>from . import views</p>
+<p>app_name = 'polls'</p>
+<p>urlpatterns = [</p>
+<p>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp;path('', views.index, name='index'),</p>
+<p>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp;path('&ltint:question_id&gt/', views.detail, name='detail'),</p>
+<p>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp;path('&ltint:question_id&gt/results/', views.results, name='results'),</p>
+<p>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp;path('&ltint:question_id&gt/vote/', views.vote, name='vote'),</p>
+<p>]</p>
+</fieldset>
+<p>Now change your polls/index.html template from :</p>
+<fieldset>
+<p>polls/templates/polls/index.html:</p>
+<p>&ltli&gt&lta href="{&percnt url 'detail' question.id &percnt}">{{ question.question_text }}&lt/a&gt&lt/li&gt</p>
+</fieldset>
+<p>to point at the namespaced detail view :</p>
+<fieldset>
+<p>polls/templates/polls/index.html</p>
+<p>&ltli&gt&lta href="{&percnt url 'polls:detail' question.id &percnt}"&gt{{ question.question_text }}&lt/a&gt&lt/li&gt</p>
+</fieldset>
+<p>When you’re comfortable with writing views, read part 4 of this tutorial to learn about simple form processing and generic views.</p>
+</div><!------------close------------------->
+
+
+
+<br>
+<br>
+<br>
+<div class = navigation ><!------------open------------------->
+<a href="\tutorial2.html"> <<<<- Learn Django, part 2</a>
+<a href="tutorial4.html">Learn Django, part 4 ->>>></a>
+</div><!------------close------------------->
+
+
+<div class = footer >
+    <br>
+    <br>
+    <br><br>
+    <br>
+    <br>
+        &copy; www.learndjango.com. ALL RIGHTS RESERVED.
+            <a href = "/Home/10">About this website</a>
+            <a href = "/Home/11">About me</a>
+            <a href = "/Home/12">Help</a>
+            <a href = "/Home/13">Contact us</a>
+    </div>
+
+</body>
+</html>

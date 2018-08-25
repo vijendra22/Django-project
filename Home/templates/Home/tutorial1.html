@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Learn Django</title>
+</head>
+<body>
+    {% load static %}
+   <link rel="stylesheet" type="text/css" href="{% static 'Home/style.css' %}">
+   <link href="https://fonts.googleapis.com/css?family=Great+Vibes" rel="stylesheet">
+	<link href="https://fonts.googleapis.com/css?family=Poiret+One" rel="stylesheet">
+
+
+    <div class = header>
+	    <h1>Learn Django</h1>
+    </div>
+
+    <div class = navigation>
+        <a href = "/Home/1">Home</a>
+        <a href = "/Home/2">Getting django</a>
+        <a href = "/Home/3">Start with django</a>
+        <a href = "/Home/10">About website</a>
+        <a href = "/Home/13">Contact us</a>
+
+    </div>
+
+
+    <div class = main>
+    <h2>Learn Django, part 1 : </h2>
+        <p>Let’s learn by example.</p>
+        <p>Throughout this tutorial, we’ll walk you through the creation of a basic poll application.</p>
+        <p>It’ll consist of two parts:</p>
+        <p> > A public site that lets people view polls and vote in them.</p>
+        <p> > An admin site that lets you add, change, and delete polls.</p>
+        <p>We’ll assume you have Django installed already. You can tell Django is installed and which version by running the following command in a shell prompt :</p>
+
+            <fieldset>Linux/Mac : python -m django --version</fieldset><br>
+            <fieldset>Windows : py -m django --version</fieldset><br>
+        <p>If Django is installed, you should see the version of your installation. If it isn’t, you’ll get an error telling “No module named django”.</p>
+        <p>This tutorial is written for Django 2.1, which supports Python 3.5 and later. If the Django version doesn’t match, you can refer to the tutorial for your version of Django by using the version switcher at the bottom right corner of this page, or update Django to the newest version. If you’re using an older version of Python, check <a href="https://docs.djangoproject.com/en/2.1/faq/install/#faq-python-version-support">What Python version can I use with Django?</a> to find a compatible version of Django.
+
+
+    <h2>Creating a project : </h2>
+        <p>If this is your first time using Django, you’ll have to take care of some initial setup. Namely, you’ll need to auto-generate some code that establishes a Django <a href="https://docs.djangoproject.com/en/2.1/glossary/#term-project">project</a> – a collection of settings for an instance of Django, including database configuration, Django-specific options and application-specific settings.</p>
+        <p>From the command line, cd into a directory where you’d like to store your code, then run the following command:</p>
+            <fieldset>Linux/Mac : django-admin startproject mysite</fieldset><br>
+            <fieldset>Windows :  django-admin startproject mysite</fieldset><br>
+        <p>This will create a mysite directory in your current directory.</p>
+        <p>Let’s look at what startproject created:</p>
+
+            <fieldset>
+                <ul>
+                    <p>mysite/</p>
+                    <p>manage.py</p>
+                    <p>mysite</p>
+                    <p>__init__.py</p>
+                    <p>settings.py</p>
+                    <p>urls.py</p>
+                    <p>wsgi.py</p>
+                </ul>
+            </fieldset>
+        <br>
+
+    <h2>These files are : </h2>
+                <ul>
+                    <p> > The outer mysite/ root directory is just a container for your project. Its name doesn’t matter to Django; you can rename it to anything you like.</p>
+                    <p> > manage.py : A command-line utility that lets you interact with this Django project in various ways.</p>
+                    <p> > The inner mysite/ directory is the actual Python package for your project. Its name is the Python package name you’ll need to use to import anything inside it.</p>
+                    <p> > mysite/__init__.py : An empty file that tells Python that this directory should be considered a Python package.</p>
+                    <p> > mysite/settings.py : Settings/configuration for this Django project. Django settings will tell you all about how settings work.</p>
+                    <p> > mysite/urls.py : The URL declarations for this Django project; a “table of contents” of your Django-powered site.</p>
+                    <p> > mysite/wsgi.py : An entry-point for WSGI-compatible web servers to serve your project.</p>
+                </ul>
+
+    <fieldset>
+        <div class = main>
+            <h2>Creating Project Django Youtube Video : </h2>
+            <b>
+                <a href="https://www.youtube.com/watch?v=qgGIqRFvFFk&list=PL6gx4Cwl9DGBlmzzFcLgDhKTTfNLfX1IK&index=1">Click Here</a></b>
+        </div>
+    </fieldset>
+
+
+    <h2>The development server : </h2>
+        <p>Let’s verify your Django project works. Change into the outer mysite directory, if you haven’t already, and run the following commands : </p>
+        <fieldset>Linux/Mac : python manage.py runserver</fieldset><br>
+        <fieldset>Windows :  py manage.py runserver</fieldset><br>
+            <p>You’ll see the following output on the command line : </p>
+        <fieldset>
+            <p>Performing system checks...</p>
+            <p>System check identified no issues (0 silenced).</p>
+            <p>You have unapplied migrations; your app may not work properly until they are applied.
+            Run 'python manage.py migrate' to apply them.</p>
+            <p>August 03, 2018 - 15:50:53
+            Django version 2.1, using settings 'mysite.settings'
+            Starting development server at http://127.0.0.1:8000/
+            Quit the server with CONTROL-C.</p>
+        </fieldset>
+    <br>
+    <br>
+        <p>You’ve started the Django development server, a lightweight Web server written purely in Python. We’ve included this with Django so you can develop things rapidly, without having to deal with configuring a production server – such as Apache – until you’re ready for production. Now’s a good time to note: don’t use this server in anything resembling a production environment. It’s intended only for use while developing. (We’re in the business of making Web frameworks, not Web servers.) Now that the server’s running, visit http://127.0.0.1:8000/ with your Web browser. You’ll see a “Congratulations!” page, with a rocket taking off. It worked!</p>
+
+
+    <h2>Creating the Polls app : </h2>
+        <p>Now that your environment – a “project” – is set up, you’re set to start doing work. Each application you write in Django consists of a Python package that follows a certain convention. Django comes with a utility that automatically generates the basic directory structure of an app, so you can focus on writing code rather than creating directories.</p>
+        <h3>Projects vs. apps : </h3>
+            <p>What’s the difference between a project and an app? An app is a Web application that does something – e.g., a Weblog system, a database of public records or a simple poll app. A project is a collection of configuration and apps for a particular website. A project can contain multiple apps. An app can be in multiple projects.</p>
+            <p>Your apps can live anywhere on your Python path. In this tutorial, we’ll create our poll app right next to your manage.py file so that it can be imported as its own top-level module, rather than a submodule of mysite.</p>
+            <p>To create your app, make sure you’re in the same directory as manage.py and type this command : </p>
+                <fieldset>Linux/Mac : python manage.py startapp polls</fieldset><br>
+                <fieldset>Windows : py manage.py startapp polls</fieldset><br>
+                <p>That’ll create a directory polls, which is laid out like this :</p>
+                <fieldset>
+                <ul>
+                <p>polls/</p>
+                <p> __init__.py</p>
+                <p>admin.py</p>
+                <p> apps.py</p>
+                <p>migrations/</p>
+                <p>  __init__.py</p>
+                <p> models.py</p>
+                <p>tests.py</p>
+                <p> views.py</p>
+                </ul>
+                </fieldset>
+            <p>This directory structure will house the poll application.</p>
+
+
+        <h2>Write your first view :</h2>
+            <p>Let’s write the first view. Open the file polls/views.py and put the following Python code in it :</p>
+                <fieldset>
+                <p>from django.http import HttpResponse</p>
+                <p>def index(request):</p>
+                <p>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbspreturn HttpResponse("Hello, world. You're at the polls index.")</p>
+                </fieldset>
+            <p>This is the simplest view possible in Django. To call the view, we need to map it to a URL - and for this we need a URLconf.</p>
+            <p>To create a URLconf in the polls directory, create a file called urls.py. Your app directory should now look like :</p>
+
+                <fieldset>
+                <ul>
+                <p>polls/</p>
+                <p> __init__.py</p>
+                <p>admin.py</p>
+                <p> apps.py</p>
+                <p>migrations/</p>
+                <p>  __init__.py</p>
+                <p> models.py</p>
+                <p>tests.py</p>
+                <p>urls.py</p>
+                <p> views.py</p>
+                </ul>
+                </fieldset>
+
+            <p>In the polls/urls.py file include the following code :</p>
+
+                <fieldset>
+                <p>from django.urls import path</p>
+                <p>from . import views</p>
+                <p>urlpatterns = [</p>
+                <p>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsppath('', views.index, name='index'),</p>
+                <p>]</p>
+                </fieldset>
+
+            <p>The next step is to point the root URLconf at the polls.urls module. In mysite/urls.py, add an import for django.urls.include and insert an include() in the urlpatterns list, so you have :</p>
+
+                <fieldset>
+                <p>from django.contrib import admin </p>
+                <p>from django.urls import include, path </p>
+                <p>urlpatterns = [</p>
+                <p>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp path('polls/', include('polls.urls')),</p>
+                <p>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp path('admin/', admin.site.urls),</p>
+                <p>]</p>
+                </fieldset>
+
+            <p>The include() function allows referencing other URLconfs. Whenever Django encounters include(), it chops off whatever part of the URL matched up to that point and sends the remaining string to the included URLconf for further processing. The idea behind include() is to make it easy to plug-and-play URLs. Since polls are in their own URLconf (polls/urls.py), they can be placed under “/polls/”, or under “/fun_polls/”, or under “/content/polls/”, or any other path root, and the app will still work. You should always use include() when you include other URL patterns. admin.site.urls is the only exception to this.</p>
+            <p>You have now wired an index view into the URLconf. Lets verify it’s working, run the following command :</p>
+                <fieldset>Linux/Mac : python manage.py runserver</fieldset><br>
+                <fieldset>Windows : py manage.py runserver</fieldset><br>
+            <p>Go to http://localhost:8000/polls/ in your browser, and you should see the text “Hello, world. You’re at the polls index.”, which you defined in the index view. If you get an error page here, check that you’re going to http://localhost:8000/polls/ and not http://localhost:8000/.</p>
+    </div>
+
+
+<fieldset>
+    <div class = main>
+        <h2>Creating App Django Youtube Video : </h2>
+            <b><a href="https://www.youtube.com/watch?v=qgGIqRFvFFk&list=PL6gx4Cwl9DGBlmzzFcLgDhKTTfNLfX1IK&index=1">Click Here</a></b>
+    </div>
+</fieldset>
+
+
+<br>
+<br>
+<br>
+<div class = navigation ><!------------open------------------->
+    <a href="collection.html"> <<<<- Start with django</a>
+    <a href="tutorial2.html">Learn Django, part 2 ->>>></a>
+</div><!------------close------------------->
+
+
+<div class = footer >
+    <br>
+    <br>
+    <br><br>
+    <br>
+    <br>
+       &copy; www.learndjango.com. ALL RIGHTS RESERVED.
+            <a href = "/Home/10">About this website</a>
+            <a href = "/Home/11">About me</a>
+            <a href = "/Home/12">Help</a>
+            <a href = "/Home/13">Contact us</a>
+    </div>
+</body>
+</html>
